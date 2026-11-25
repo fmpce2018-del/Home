@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مصروفات البناء</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Cairo', sans-serif; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+<!-- شاشة تسجيل الدخول -->
+<div id="login-screen" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
+<div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-center">
+<h2 class="text-2xl font-bold text-gray-900 mb-2">مصروفات البناء</h2>
+<p class="text-sm text-gray-500 mb-6">اختر حسابك لتسجيل الدخول</p>
+<div class="space-y-4">
+<div class="flex items-center justify-between bg-amber-50 p-3 rounded-xl border border-amber-200">
+<div class="text-right">
+<span class="font-bold text-amber-900 text-lg block">محمد</span>
+<span id="login-total-mohamed" class="text-xs font-semibold text-amber-700">0 د.ل</span>
+</div>
+<button id="btn-mohamed" type="button" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2 rounded-lg shadow cursor-pointer">دخول</button>
+</div>
+<div class="flex items-center justify-between bg-amber-50 p-3 rounded-xl border border-amber-200">
+<div class="text-right">
+<span class="font-bold text-amber-900 text-lg block">سفيان</span>
+<span id="login-total-sofian" class="text-xs font-semibold text-amber-700">0 د.ل</span>
+</div>
+<button id="btn-sofian" type="button" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2 rounded-lg shadow cursor-pointer">دخول</button>
+</div>
+<div class="flex items-center justify-between bg-amber-50 p-3 rounded-xl border border-amber-200">
+<div class="text-right">
+<span class="font-bold text-amber-900 text-lg block">مروان</span>
+<span id="login-total-marwan" class="text-xs font-semibold text-amber-700">0 د.ل</span>
+</div>
+<button id="btn-marwan" type="button" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2 rounded-lg shadow cursor-pointer">دخول</button>
+</div>
+<div class="flex items-center justify-between bg-amber-50 p-3 rounded-xl border border-amber-200">
+<div class="text-right">
+<span class="font-bold text-amber-900 text-lg block">الشركة</span>
+<span id="login-total-company" class="text-xs font-semibold text-amber-700">0 د.ل</span>
+</div>
+<button id="btn-company" type="button" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2 rounded-lg shadow cursor-pointer">دخول</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- التطبيق الرئيسي -->
+<div id="main-app" class="flex-1 flex flex-col hidden">
+<header class="bg-amber-600 text-white shadow-md p-4 flex justify-between items-center">
+<h1 class="text-xl font-bold">مصروفات البناء</h1>
+<div class="flex items-center gap-3">
+<span id="current-user-badge" class="bg-amber-700 px-3 py-1 rounded-full text-sm font-semibold"></span>
+<button id="btn-logout" type="button" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm cursor-pointer">خروج</button>
+</div>
+</header>
+
+<main class="max-w-4xl w-full mx-auto p-4 flex-1 space-y-6">
+<!-- نموذج إضافة مصروف -->
+<div class="bg-white p-5 rounded-2xl shadow">
+<h2 class="text-lg font-bold mb-4">تسجيل مصروف جديد</h2>
+<form id="expense-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<select id="expense-account" class="border rounded-lg p-2.5 bg-gray-50" required>
+<option value="mohamed">محمد</option>
+<option value="sofian">سفيان</option>
+<option value="marwan">مروان</option>
+<option value="company">الشركة</option>
+</select>
+<input type="number" id="expense-amount" step="any" placeholder="المبلغ (د.ل)" class="border rounded-lg p-2.5 bg-gray-50" required>
+<input type="text" id="expense-desc" placeholder="البيان / الوصف" class="border rounded-lg p-2.5 bg-gray-50" required>
+<div class="md:col-span-3 flex justify-end">
+<button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2.5 rounded-lg cursor-pointer">حفظ المصروف</button>
+</div>
+</form>
+</div>
+
+<!-- جدول السجل -->
+<div class="bg-white rounded-2xl shadow overflow-x-auto">
+<div class="p-4 bg-gray-100 border-b flex justify-between items-center">
+<h2 class="font-bold">سجل المصروفات</h2>
+<span class="text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-700">متصل</span>
+</div>
+<table class="w-full text-right whitespace-nowrap">
+<thead class="bg-gray-50 text-sm border-b">
+<tr>
+<th class="p-3">التاريخ</th>
+<th class="p-3">الحساب</th>
+<th class="p-3">المبلغ</th>
+<th class="p-3">البيان</th>
+<th class="p-3">بواسطة</th>
+<th class="p-3 text-center">إجراء</th>
+</tr>
+</thead>
+<tbody id="expenses-table-body" class="divide-y text-sm"></tbody>
+</table>
+</div>
+</main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyAFJiuqDdV6Wm7s7d4YJ18y...",
+authDomain: "home-88c06.firebaseapp.com",
+projectId: "home-88c06",
+storageBucket: "home-88c06.appspot.com",
+messagingSenderId: "853869420081",
+appId: "1:853869420081:web:e75e2f55a363..."
+};
+
+const db = getFirestore(initializeApp(firebaseConfig));
+
+let currentUser = localStorage.getItem('masroofat_user') || null;
+let unsubscribeExpenses = null;
+const userNames = { mohamed: 'محمد', sofian: 'سفيان', marwan: 'مروان', company: 'الشركة' };
+
+function checkAuth() {
+const loginScreen = document.getElementById('login-screen');
+const mainApp = document.getElementById('main-app');
+if (currentUser && userNames[currentUser]) {
+loginScreen.classList.add('hidden');
+mainApp.classList.remove('hidden');
+document.getElementById('current-user-badge').innerText = المستخدم: ${userNames[currentUser]}`;
+} else {
+loginScreen.classList.remove('hidden');
+mainApp.classList.add('hidden');
+}
+}
+
+function setupButton(id, callback) {
+const btn = document.getElementById(id);
+if (btn) {
+btn.addEventListener('click', (e) => {
+e.preventDefault();
+callback();
+});
+}
+}
+
+setupButton('btn-mohamed', () => login('mohamed'));
+setupButton('btn-sofian', () => login('sofian'));
+setupButton('btn-marwan', () => login('marwan'));
+setupButton('btn-company', () => login('company'));
+setupButton('btn-logout', logout);
+
+function login(user) {
+currentUser = user;
+localStorage.setItem('masroofat_user', user);
+checkAuth();
+loadExpenses();
+}
+
+function logout() {
+localStorage.removeItem('masroofat_user');
+currentUser = null;
+if (unsubscribeExpenses) {
+unsubscribeExpenses();
+unsubscribeExpenses = null;
+}
+checkAuth();
+}
+
+document.getElementById('expense-form').addEventListener('submit', async (e) => {
+e.preventDefault();
+if (!currentUser) return;
+try {
+await addDoc(collection(db, "expenses"), {
+account: document.getElementById('expense-account').value,
+amount: parseFloat(document.getElementById('expense-amount').value),
+desc: document.getElementById('expense-desc').value,
+addedBy: userNames[currentUser],
+timestamp: new Date().toISOString()
+});
+document.getElementById('expense-form').reset();
+} catch (err) {
+console.error(err);
+alert("خطأ أثناء الحفظ");
+}
+});
+
+window.deleteExpense = async function(id) {
+if (prompt("أدخل الرقم السري للحذف (123):") !== "123") {
+alert("الرقم غير صحيح!");
+return;
+}
+if (confirm("حذف هذا السجل نهائياً؟")) {
+try {
+await deleteDoc(doc(db, "expenses", id));
+} catch (e) {
+alert("فشل الحذف");
+}
+}
+};
+
+function loadExpenses() {
+if (unsubscribeExpenses) unsubscribeExpenses();
+try {
+unsubscribeExpenses = onSnapshot(query(collection(db, "expenses")), (snapshot) => {
+let totals = { mohamed: 0, sofian: 0, marwan: 0, company: 0 };
+const tbody = document.getElementById('expenses-table-body');
+tbody.innerHTML = '';
+let items = [];
+
+snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
+items.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+items.forEach(i => {
+if (totals[i.account] !== undefined) {
+totals[i.account] += Number(i.amount) || 0;
+}
+const accountLabel = userNames[i.account] || i.account;
+tbody.innerHTML += &lt;tr class="hover:bg-gray-50"&gt; &lt;td class="p-3 text-xs"&gt;${new Date(i.timestamp).toLocaleDateString('ar-LY')}</td>
+<td class="p-3 font-medium">{Number(i.amount).toLocaleString()} د.ل</td>
+<td class="p-3">{i.addedBy}</td>
+<td class="p-3 text-center">
+<button onclick="deleteExpense('${i.id}')" class="text-red-500 hover:text-red-700 cursor-pointer">🗑️</button>
+</td>
+</tr>`;
+});
+
+// تحديث القيم بجانب الأسماء في شاشة تسجيل الدخول
+document.getElementById('login-total-mohamed').innerText = totals.mohamed.toLocaleString() + " د.ل";
+document.getElementById('login-total-sofian').innerText = totals.sofian.toLocaleString() + " د.ل";
+document.getElementById('login-total-marwan').innerText = totals.marwan.toLocaleString() + " د.ل";
+document.getElementById('login-total-company').innerText = totals.company.toLocaleString() + " د.ل";
+});
+} catch (err) {
+console.error(err);
+}
+}
+
+checkAuth();
+// جلب المصروفات تلقائياً لتحديث شاشة الدخول بالأسعار حتى لو لم يتم تسجيل الدخول بعد
+loadExpenses();
+</script>
+</body>
+</html>
